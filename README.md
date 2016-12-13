@@ -15,14 +15,14 @@ $ scripts install eval
 
 Otherwise:
 
-1. Add the following to your `pubspec.yaml`:
+Add the following to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
     eval: ^1.0.0-dev
 ```
 
-2. Run:
+Then, run:
 
 ```bash
 $ pub get
