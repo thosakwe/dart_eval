@@ -143,6 +143,10 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
           return new Future.value(buf.toString());
         }
       }
+
+      if (ctx is SymbolLiteral) {
+        return new Symbol(ctx.toSource().substring(1));
+      }
     }
 
     if (ctx is MethodInvocation) return await visitInvocationExpression(ctx);

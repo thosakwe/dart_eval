@@ -3,8 +3,9 @@ description: Dart interpreter written in Dart. Highly experimental.
 version: 1.0.0-dev
 author: Tobe O <thosakwe@gmail.com>
 homepage: https://github.com/thosakwe/dart_eval
+environment:
+  sdk: ">=1.19.0"
 dependencies:
-  analyzer: ">=0.28.1 <0.29.0"
-  browser: ">=0.10.0 <0.11.0"
+  analyzer: ^0.29.1
 dev_dependencies:
-  test: ">=0.12.15 <0.13.0"
+  test: ^0.12.15
