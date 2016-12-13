@@ -38,7 +38,7 @@ final len = await eval('''
 main(List<String> args) {
   return args.length;
 }
-''', ['foo', 'bar', 'baz]);
+''', ['foo', 'bar', 'baz']);
 
 expect(len, equals(3));
 ```
