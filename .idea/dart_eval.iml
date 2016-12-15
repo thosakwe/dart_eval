@@ -4,9 +4,16 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/packages" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
+      <excludeFolder url="file://$MODULE_DIR$/test/directives/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/test/expressions/packages" />
       <excludeFolder url="file://$MODULE_DIR$/test/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/test/properties/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/test/statements/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/test/top_level/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/test/variables/packages" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
     </content>
     <orderEntry type="inheritedJdk" />

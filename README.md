@@ -34,13 +34,15 @@ Dart object to the `main` function, instead of just primitives. This can elimina
 `SendPort` use sometimes.
 
 ```dart
-final len = await eval('''
-main(List<String> args) {
-  return args.length;
+main() async {
+    final len = await eval('''
+    main(List<String> args) {
+      return args.length;
+    }
+    ''', ['foo', 'bar', 'baz']);
+    
+    expect(len, equals(3));
 }
-''', ['foo', 'bar', 'baz']);
-
-expect(len, equals(3));
 ```
 
 # Coverage
@@ -58,14 +60,14 @@ until it has thorough tests available.*
   * [ ] Binary
   * [ ] Function (needs tests)
   * [ ] Literal
-    * [ ] Boolean (needs tests)
+    * [x] Boolean
     * [ ] List (needs tests)
     * [ ] Map (needs tests)
-    * [ ] Null (needs tests)
+    * [x] Null
     * [ ] Number (needs tests)
-    * [ ] String (needs tests)
-      * [ ] Interpolation (needs tests)
-    * [ ] Symbol (needs tests)
+    * [x] String
+      * [x] Interpolation
+    * [x] Symbol
   * [ ] Method Invocation (needs tests)
   * [ ] `new`
 * [ ] Properties
@@ -80,6 +82,7 @@ until it has thorough tests available.*
     * [ ] For
     * [ ] Foreach
     * [ ] While
+  * [x] Return
 * [ ] Top-level (needs tests)
   * [ ] Functions (needs tests)
   * [ ] Variables (needs tests)

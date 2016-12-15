@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:mirrors';
 import 'package:analyzer/analyzer.dart';
+import 'func.dart';
 import 'symbol_table.dart';
-
-typedef Future DartFunction(List positional, Map<Symbol, dynamic> named);
 
 class DartInterpreter extends SimpleAstVisitor<Future> {
   final bool debug;
@@ -26,7 +25,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
       printDebug(
           'Calling $callee with positional $positional and named $named');
       printDebug('Invocation: ${ctx.toSource()}');
-      final result = callee is Func
+      var result = callee is Func
           ? await callee(positional, named)
           : Function.apply(callee, positional, named);
       return result is Future ? await result : result;
@@ -37,12 +36,19 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
     if (debug) print(object);
   }
 
-  // This is very long, beware
+
   resolveExpression(Expression ctx) async {
+    var result = await _resolveExpression(ctx);
+    printDebug('Resolution result: $result');
+    return result;
+  }
+
+  // This is very long, beware
+  _resolveExpression(Expression ctx) async {
     printDebug('Resolving this ${ctx.runtimeType}');
 
     if (ctx is AssignmentExpression) {
-      final right = await resolveExpression(ctx.rightHandSide);
+      var right = await resolveExpression(ctx.rightHandSide);
       printDebug(
           'Left: ${ctx.leftHandSide.toSource()} (${ctx.leftHandSide.runtimeType})');
       printDebug('Right: $right');
@@ -65,26 +71,26 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
 
     if (ctx is Identifier) {
       if (ctx is SimpleIdentifier) {
-        final split = ctx.name.split('.');
+        var split = ctx.name.split('.');
         printDebug('Split: $split');
         var resolver;
 
         if (split.length > 1) {
           for (int i = 0; i < split.length; i++) {
-            final str = split[i];
+            var str = split[i];
 
             if (i == 0) {
               resolver = symbolTable[new Symbol(str)];
             } else {
-              final r = reflect(resolver);
+              var r = reflect(resolver);
               resolver = r.getField(new Symbol(str));
             }
           }
 
           return new Future.value(resolver);
         } else {
-          final sym = new Symbol(ctx.name);
-          final resolved = symbolTable[sym];
+          var sym = new Symbol(ctx.name);
+          var resolved = symbolTable[sym];
 
           if (resolved == null) {
             throw new NoSuchMethodError('top-level', sym, [], {});
@@ -102,9 +108,9 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
       if (ctx is IntegerLiteral) return new Future.value(ctx.value);
 
       if (ctx is ListLiteral) {
-        final list = [];
+        var list = [];
 
-        for (final elem in ctx.elements) {
+        for (var elem in ctx.elements) {
           list.add(await resolveExpression(elem));
         }
 
@@ -112,9 +118,9 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
       }
 
       if (ctx is MapLiteral) {
-        final map = {};
+        var map = {};
 
-        for (final entry in ctx.entries) {
+        for (var entry in ctx.entries) {
           map[await resolveExpression(entry.key)] =
               await resolveExpression(entry.value);
         }
@@ -130,9 +136,10 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
         if (ctx is SimpleStringLiteral) {
           return new Future.value(ctx.stringValue);
         } else if (ctx is StringInterpolation) {
-          final buf = new StringBuffer();
+          var buf = new StringBuffer();
 
-          for (final elem in ctx.elements) {
+          for (var elem in ctx.elements) {
+            printDebug("Interpolating this: '${elem.toSource()}'");
             if (elem is InterpolationString) {
               buf.write(elem.value);
             } else if (elem is InterpolationExpression) {
@@ -159,7 +166,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
   visitBlock(Block ctx) async {
     var result;
 
-    for (final stmt in ctx.statements) {
+    for (var stmt in ctx.statements) {
       result = await visitStatement(stmt);
     }
 
@@ -177,7 +184,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
         if (declaration.name.name == 'main') mainMethod = declaration;
       } else if (declaration is TopLevelVariableDeclaration) {
         for (VariableDeclaration vardecl in declaration.variables.variables) {
-          final sym = new Symbol(vardecl.name.name);
+          var sym = new Symbol(vardecl.name.name);
           symbolTable[sym] = vardecl.initializer == null
               ? null
               : await resolveExpression(vardecl.initializer);
@@ -213,14 +220,14 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
 
   @override
   visitFunctionExpression(FunctionExpression ctx) {
-    final body = ctx.body;
+    var body = ctx.body;
 
     void injectArgs(List positional, Map<Symbol, dynamic> named) {
       symbolTable.enter();
 
       // Inject positional
       for (var i = 0; i < ctx.parameters.parameters.length; i++) {
-        final elem = ctx.parameters.parameters[i];
+        var elem = ctx.parameters.parameters[i];
 
         if (elem == null) continue;
 
@@ -244,14 +251,14 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
       if (body is BlockFunctionBody) {
         return new Future(() async {
           injectArgs(positional, named);
-          final result = await visitBlock(body.block);
+          var result = await visitBlock(body.block);
           symbolTable.exit();
           return result;
         });
       } else if (body is ExpressionFunctionBody) {
         return new Future(() async {
           injectArgs(positional, named);
-          final result = await resolveExpression(body.expression);
+          var result = await resolveExpression(body.expression);
           symbolTable.exit();
           return result;
         });
@@ -260,17 +267,17 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
   }
 
   visitInvocationExpression(InvocationExpression ctx) async {
-    final positional = [];
-    final named = {};
+    var positional = [];
+    var named = {};
 
-    for (final expr in ctx.argumentList.arguments) {
+    for (var expr in ctx.argumentList.arguments) {
       if (expr is NamedExpression) {
-        final key = new Symbol(expr.name.label.name);
-        final val = await resolveExpression(expr.expression);
+        var key = new Symbol(expr.name.label.name);
+        var val = await resolveExpression(expr.expression);
         printDebug('Injecting named arg $key = $val');
         named[key] = val;
       } else {
-        final val = await resolveExpression(expr);
+        var val = await resolveExpression(expr);
         printDebug('Injecting positional arg $val');
         positional.add(val);
       }
@@ -281,8 +288,8 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
     if (ctx is MethodInvocation && ctx.realTarget != null) {
       printDebug(
           'Real target: ${ctx.realTarget.toSource()} (${ctx.realTarget.runtimeType})');
-      final realTarget = await resolveExpression(ctx.realTarget);
-      final r = reflect(realTarget);
+      var realTarget = await resolveExpression(ctx.realTarget);
+      var r = reflect(realTarget);
       callee = r.getField(new Symbol(ctx.methodName.name)).reflectee;
     } else
       callee = await resolveExpression(ctx.function);
@@ -296,7 +303,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
       return await resolveExpression(ctx.expression);
 
     if (ctx is FunctionDeclarationStatement) {
-      final declaration = ctx.functionDeclaration;
+      var declaration = ctx.functionDeclaration;
       symbolTable.set(new Symbol(declaration.name.name),
           await visitFunctionExpression(declaration.functionExpression));
       return null;
@@ -304,7 +311,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
 
     if (ctx is VariableDeclarationStatement) {
       for (VariableDeclaration vardecl in ctx.variables.variables) {
-        final sym = new Symbol(vardecl.name.name);
+        var sym = new Symbol(vardecl.name.name);
         symbolTable[sym] = vardecl.initializer == null
             ? null
             : await resolveExpression(vardecl.initializer);
@@ -312,52 +319,13 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
 
       return null;
     }
-  }
-}
 
-class Func {
-  final FunctionExpression ctx;
-  final DartFunction exec;
-  final bool debug;
-  final SymbolTable symbolTable;
-
-  Func(this.ctx, this.exec, this.symbolTable, {this.debug: false});
-
-  call(List positional, Map<Symbol, dynamic> named) {
-    printDebug('This is a Func instance');
-
-    injectArgs(positional, named);
-    return exec(positional, named);
-  }
-
-  void injectArgs(List positional, Map<Symbol, dynamic> named) {
-    symbolTable.enter();
-
-    printDebug(
-        'This ${ctx.runtimeType} (${ctx.toSource()} has ${ctx.parameters.parameters.length} parameter(s).');
-
-    // Inject positional
-    for (var i = 0; i < ctx.parameters.parameters.length; i++) {
-      final elem = ctx.parameters.parameters[i];
-
-      if (elem is NormalFormalParameter) {
-        if (elem.kind == ParameterKind.REQUIRED ||
-            elem.kind == ParameterKind.POSITIONAL) {
-          final key = new Symbol(elem.identifier.name);
-          final val = positional[i];
-
-          if (debug) print('Injecting $key = $val into this Func');
-
-          symbolTable[key] = val;
-        }
-      } else {
-        printDebug('This parameter (${elem.toSource()}) is a ${elem
-            .runtimeType}, not a normal formal parameter.');
-      }
+    if (ctx is ReturnStatement) {
+      if (ctx.expression == null)
+        return null;
+      else return await resolveExpression(ctx.expression);
     }
   }
-
-  void printDebug(Object object) {
-    if (debug) print(object);
-  }
 }
+
+
