@@ -36,7 +36,6 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
     if (debug) print(object);
   }
 
-
   resolveExpression(Expression ctx) async {
     var result = await _resolveExpression(ctx);
     printDebug('Resolution result: $result');
@@ -87,7 +86,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
             }
           }
 
-          return new Future.value(resolver);
+          return resolver;
         } else {
           var sym = new Symbol(ctx.name);
           var resolved = symbolTable[sym];
@@ -95,17 +94,17 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
           if (resolved == null) {
             throw new NoSuchMethodError('top-level', sym, [], {});
           } else
-            return new Future.value(resolved);
+            return resolved;
         }
       }
     }
 
     if (ctx is Literal) {
-      if (ctx is BooleanLiteral) return new Future.value(ctx.value);
+      if (ctx is BooleanLiteral) return ctx.value;
 
-      if (ctx is DoubleLiteral) return new Future.value(ctx.value);
+      if (ctx is DoubleLiteral) return ctx.value;
 
-      if (ctx is IntegerLiteral) return new Future.value(ctx.value);
+      if (ctx is IntegerLiteral) return ctx.value;
 
       if (ctx is ListLiteral) {
         var list = [];
@@ -125,16 +124,16 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
               await resolveExpression(entry.value);
         }
 
-        return new Future.value(map);
+        return map;
       }
 
       if (ctx is NullLiteral) {
-        return new Future.value(null);
+        return null;
       }
 
       if (ctx is StringLiteral) {
         if (ctx is SimpleStringLiteral) {
-          return new Future.value(ctx.stringValue);
+          return ctx.stringValue;
         } else if (ctx is StringInterpolation) {
           var buf = new StringBuffer();
 
@@ -147,7 +146,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
             }
           }
 
-          return new Future.value(buf.toString());
+          return buf.toString();
         }
       }
 
@@ -158,8 +157,11 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
 
     if (ctx is MethodInvocation) return await visitInvocationExpression(ctx);
 
+    if (ctx is PrefixExpression)
+      return -1 * await resolveExpression(ctx.operand);
+
     printDebug("Couldn't resolve expression: ${ctx.runtimeType}");
-    return new Future.value(null);
+    return null;
   }
 
   @override
@@ -219,7 +221,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
   }
 
   @override
-  visitFunctionExpression(FunctionExpression ctx) {
+  visitFunctionExpression(FunctionExpression ctx) async {
     var body = ctx.body;
 
     void injectArgs(List positional, Map<Symbol, dynamic> named) {
@@ -246,8 +248,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
       named.forEach(symbolTable.set);
     }
 
-    return new Future.value(
-        new Func(ctx, (List positional, Map<Symbol, dynamic> named) {
+    return new Func(ctx, (List positional, Map<Symbol, dynamic> named) {
       if (body is BlockFunctionBody) {
         return new Future(() async {
           injectArgs(positional, named);
@@ -263,7 +264,7 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
           return result;
         });
       }
-    }, symbolTable, debug: debug));
+    }, symbolTable, debug: debug);
   }
 
   visitInvocationExpression(InvocationExpression ctx) async {
@@ -323,9 +324,8 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
     if (ctx is ReturnStatement) {
       if (ctx.expression == null)
         return null;
-      else return await resolveExpression(ctx.expression);
+      else
+        return await resolveExpression(ctx.expression);
     }
   }
 }
-
-

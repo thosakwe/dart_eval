@@ -59,12 +59,12 @@ until it has thorough tests available.*
   * [ ] Await (needs tests)
   * [ ] Binary
   * [ ] Function (needs tests)
-  * [ ] Literal
+  * [x] Literal
     * [x] Boolean
-    * [ ] List (needs tests)
-    * [ ] Map (needs tests)
+    * [x] List
+    * [x] Map
     * [x] Null
-    * [ ] Number (needs tests)
+    * [x] Number
     * [x] String
       * [x] Interpolation
     * [x] Symbol
@@ -77,12 +77,17 @@ until it has thorough tests available.*
   * [ ] Blocks
     * [ ] If/Else
     * [ ] Switch
+    * [ ] Try/Catch
+  * `break`
+  * `continue`
   * [ ] Loops
     * [ ] Do-while
     * [ ] For
     * [ ] Foreach
     * [ ] While
-  * [x] Return
+  * [ ] `rethrow`
+  * [x] `return`
+  * [ ] `throw`
 * [ ] Top-level (needs tests)
   * [ ] Functions (needs tests)
   * [ ] Variables (needs tests)
