@@ -16,7 +16,7 @@ main() {
     ''');
     print('func: $func');
 
-    var fiftySix = func(7, 8);
+    var fiftySix = func([7, 8]);
     expect(fiftySix, new isInstanceOf<Future>());
     expect(await fiftySix, equals(56));
   });
@@ -29,7 +29,7 @@ main() {
     ''');
     print('func: $func');
 
-    var fiftySix = func(7, 8);
+    var fiftySix = func([7, 8]);
     expect(fiftySix, new isInstanceOf<Future>());
     expect(await fiftySix, equals(56));
   });
@@ -49,7 +49,7 @@ main() {
     ''');
     print('func: $func');
 
-    var fiftySix = func(7, 8);
+    var fiftySix = func([7, 8]);
     expect(fiftySix, new isInstanceOf<Future>());
     expect(await fiftySix, equals(56));
   });

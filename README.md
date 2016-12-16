@@ -55,10 +55,15 @@ until it has thorough tests available.*
   * [ ] `export`
   * [ ] `part`
 * [ ] Expressions
+  * [x] `as`
   * [ ] Assignment
-  * [ ] Await (needs tests)
-  * [ ] Binary
+  * [x] Await
+  * [x] Binary
+    * [x] Arithmetic (*, /, +, -)
+    * [x] Bitwise (|, &, <<, >>)
+    * [x] Boolean (==, !=, ||, &&, <, <=, >, >=)
   * [ ] Function (needs tests)
+  * [ ] Is (`is`, `is!`)
   * [x] Literal
     * [x] Boolean
     * [x] List
@@ -70,6 +75,9 @@ until it has thorough tests available.*
     * [x] Symbol
   * [ ] Method Invocation (needs tests)
   * [ ] `new`
+  * [ ] Unary
+    * [ ] Postfix
+    * [ ] Prefix
 * [ ] Properties
   * [ ] Getting
   * [ ] Setting
@@ -78,8 +86,8 @@ until it has thorough tests available.*
     * [ ] If/Else
     * [ ] Switch
     * [ ] Try/Catch
-  * `break`
-  * `continue`
+  * [ ] `break`
+  * [ ] `continue`
   * [ ] Loops
     * [ ] Do-while
     * [ ] For
@@ -90,6 +98,7 @@ until it has thorough tests available.*
   * [ ] `throw`
 * [ ] Top-level (needs tests)
   * [ ] Functions (needs tests)
+    * [ ] Embedded
   * [ ] Variables (needs tests)
 * [ ] Variables
   * [ ] Declaring

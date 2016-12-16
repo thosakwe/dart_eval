@@ -10,11 +10,11 @@ class Func {
 
   Func(this.ctx, this.exec, this.symbolTable, {this.debug: false});
 
-  call(List positional, Map<Symbol, dynamic> named) {
+  call(List positional, [Map<Symbol, dynamic> named]) {
     printDebug('This is a Func instance');
 
-    injectArgs(positional, named);
-    return exec(positional, named);
+    injectArgs(positional, named ?? {});
+    return exec(positional, named ?? {});
   }
 
   void injectArgs(List positional, Map<Symbol, dynamic> named) {

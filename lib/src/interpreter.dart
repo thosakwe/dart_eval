@@ -46,6 +46,8 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
   _resolveExpression(Expression ctx) async {
     printDebug('Resolving this ${ctx.runtimeType}');
 
+    if (ctx is AsExpression) return await resolveExpression(ctx.expression);
+
     if (ctx is AssignmentExpression) {
       var right = await resolveExpression(ctx.rightHandSide);
       printDebug(
@@ -55,6 +57,48 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
 
     if (ctx is AwaitExpression)
       return await (await resolveExpression(ctx.expression));
+
+    if (ctx is BinaryExpression) {
+      var left = await resolveExpression(ctx.leftOperand),
+          right = await resolveExpression(ctx.rightOperand);
+
+      switch (ctx.operator.toString()) {
+        case '*':
+          return left * right;
+        case '/':
+          return left / right;
+        case '+':
+          return left + right;
+        case '-':
+          return left - right;
+        case '|':
+          return left | right;
+        case '&':
+          return left & right;
+        case '<<':
+          return left << right;
+        case '>>':
+          return left >> right;
+        case '==':
+          return left == right;
+        case '!=':
+          return left != right;
+        case '||':
+          return left || right;
+        case '&&':
+          return left && right;
+        case '<':
+          return left < right;
+        case '<=':
+          return left <= right;
+        case '>':
+          return left > right;
+        case '>=':
+          return left >= right;
+        default:
+          throw new Exception('Unsupported binary operator: "${ctx.operator}"');
+      }
+    }
 
     if (ctx is ConditionalExpression) {
       // Tern
@@ -156,6 +200,9 @@ class DartInterpreter extends SimpleAstVisitor<Future> {
     }
 
     if (ctx is MethodInvocation) return await visitInvocationExpression(ctx);
+
+    if (ctx is ParenthesizedExpression)
+      return await resolveExpression(ctx.expression);
 
     if (ctx is PrefixExpression)
       return -1 * await resolveExpression(ctx.operand);
